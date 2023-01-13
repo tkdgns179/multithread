@@ -1,2 +1,5 @@
-package com.example3;public class Main {
+package com.example3_interrupt;
+
+public class Main {
+
 }
