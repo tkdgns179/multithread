@@ -11,7 +11,7 @@ public class Main2 {
 
         // thread.setDaemon(true); // 외부라이브러리 처리 main thread 종료시 전체 앱 종료qqqq
         thread.start();
-        
+
         thread.interrupt(); // not enough 연산이 너무 길어 인터럽트가 걸리지 않음
     }
 
