@@ -120,3 +120,97 @@
   해당 작업은 논블로킹 작업이기 때문에 가상 코어수 만큼의 스레드를 생성하였을 때 최대 처리량을 가짐
 ![스레드 2개](./resources/throughput/스레드%202개.png)
 ![스레드 2개](./resources/throughput/스레드%205개.png)
+
+### 스택 메모리 / 힙 메모리
+
+- 스택 메모리 : 메소드가 호출됨, 인수가 넘겨짐, 지역 변수가 저장됨
+- 스택 + 명령어 포인터 = 스레드의 실행 상태 (+a 스택프레임은 변수의 동적링크 정적링크 등등을 가짐)
+
+#### 스택 메모리
+```java
+void main(String[] args) {
+    int x = 1;
+    int y = 2;
+    
+    int result = sum(x, y)
+}
+
+int sum(int a, int b) {
+    int s = a + b;
+        
+    return s;
+}
+```
+
+![스택프레임](./resources/스택프레임.png)
+
+- 스택에 입력된 모든 변수는 특정 스레드에 속함 -> 다른 스레드는 접근 불가(세그먼트 에러)
+- 스레드가 생성될 때 정적으로 할당됨
+- 스택의 사이즈는 고정되어있고, 런타임 도중에 변경불가  상대적으로 작음(플랫폼에 따라)
+- 계층적으로 깊게 호출시(ex 재귀호출) 스택오버플로우 예외발생(+a 스택 메모리와 힙 메모리는 나눠 사용하기  
+때문에 스택 메모리가 힙 메모리의 영역을 넘어버리는 예외)
+
+#### 힙 메모리
+- 무엇이 힙 메모리에 할당되는가?
+  - 모든 객체가 할당됨 new 연산자에 의해 생성되는 인스턴스
+  - String, Object, Collection...
+  - Members of classes (멤버 변수/메소드?)
+  - Static Variables
+
+- 힙은 JVM의 Garbage Collector가 Govern, Manage 함
+- Objects : 해당 객체에 참조를 가지는한 힙 메모리에 머뭄(참조 카운터)
+- Member of classes : 그들의 부모가 존재할 때까지 존재(그들의 부모와 같은 라이프 사이클을 가짐)
+- Static variables : 런타임 시작과 끝
+
+#### Objects verse References
+
+- Object referenceVar1 = new Object(); 
+- Object referenceVar2 = referenceVar1; // referenceVar1이 참조하는 인스턴스의 주소를 할당
+- 3개의 Entity 참조변수 2개와 힙 메모리에 할당된 Object 인스턴스
+
+#### 무엇이 어디에 할당되는가?
+![메모리](./resources/힙메모리%20스택메모리.png)
+- References 
+  - reference가 메서드의 로컬 변수로 선언되면 reference는 스택에 할당됨
+  - 클래스의 멤버일 경우 힙 메모리에 할당됨 
+
+### 스레드간 자원공유
+- 자원이 무엇인가?
+  - Variables (integers, Strings ..) 
+  - Data structure (배열, 컬렉션, 맵)
+  - File or connection handles (파일 객체, 네트워크, 데이터베이스 커넥션)
+  - Message or work queues (메세지 큐..)
+  - etc
+
+#### 왜 자원공유를 하려하는가?
+![자원공유1](./resources/자원공유%201.png)
+![자원공유1](./resources/자원공유%202.png) 
+![자원공유1](./resources/자원 공유%203.png)
+
+
+### The Core Problem
+
+- InventoryCounter 객체는 힙 메모리의 공유된 객체임
+  - items 멤버변수가 두 개의 스레드 사이에서 공유되고 있음
+- items++ items--
+  - 동시에 발생
+  - 원자적 작업이 아님(ACID의 A)
+
+#### Atomic Operation
+- 연산이나 일련의 연산들은 원자적일 것으로 고려됨, 다른 시스템에게 보이기에는 마치 동시에 실행된 것처럼 보임
+- Single step - "all or nothing" 한 개의 단계(양자택일)
+- 중도개입하여 중간 상태를 관찰할 수 없음
+
+#### item++ : NOT AN ATOMIC OPERATION
+1. 메모리에 저장된 items의 현재 값을 가져옴
+2. 현재의 값에 1을 더하고
+3. 그 결과를 items 변수에 저장함
+
+### Items++ and items-- concurrently (동시성문제)
+![동시성문제](./resources/동시성%20문제.png)
+
+### Summary
+- 스레드간의 자원공유의 이점
+- 멀티스레딩 프로그래밍의 문제점
+- 대표적인 예시(원자적 연산이 아닌 경우, 동시(병행)적으로 다른 스레드에의해 수행되는 동시성 문제)
+ 
