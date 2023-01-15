@@ -214,3 +214,44 @@ int sum(int a, int b) {
 - 멀티스레딩 프로그래밍의 문제점
 - 대표적인 예시(원자적 연산이 아닌 경우, 동시(병행)적으로 다른 스레드에의해 수행되는 동시성 문제)
  
+### 동시성 문제
+- 두 개의 쓰레드가 itemCounter를 공유
+- 둘 다 itemCounter를 동시에 read / write를  함
+- 그 연산들이 아토믹하지 않음
+
+```java
+void aggregateFucntion() { 
+    // enter critical section : 임계영역 
+    operation1();
+    operation2(); // ThreadA가 실행중일 때 ThreadB가 접근 불가
+    opertaion3();
+    // exit critical section 
+    ...
+}
+```
+
+### Synchronized (동기화)
+- Locking 매커니즘
+- 임계영역, 메소드 전체의 접근을 한 시점에 하나의 스레드에게만 제한을 검
+- synchronized가 객체마다 각각 적용되어 있으면 '메소드 전체의 접근'이 막힘
+
+```java
+public synchronized method1() {
+    // ...ThreadA가 실행중    
+}
+
+public synchronized method2() {
+    // ... ThreadA가 method1 호출하고있어 ThreadB가 method2에도 접근 불가
+}
+
+```
+
+```java
+void increment() {
+    items++;    
+} 
+
+void decrement() {
+    items--;    
+}
+```
