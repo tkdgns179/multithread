@@ -247,17 +247,6 @@ public synchronized method2() {
 
 ```
 
-#### 임계영역 블록 정의
-```java
-void synchronized increment() {
-    items++;
-}
-
-void synchronized decrement() {
-    items--;
-}
-```
-
 #### 임계 영역으로 간주되는 코드의 블록을 정의하고 액세스 제한
 ```java
 public class ClassWithCriticalSections {
