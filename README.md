@@ -235,6 +235,7 @@ void aggregateFucntion() {
 - 임계영역, 메소드 전체의 접근을 한 시점에 하나의 스레드에게만 제한을 검
 - synchronized가 객체마다 각각 적용되어 있으면 '메소드 전체의 접근'이 막힘
 
+#### 메소드에 임계영역 정의
 ```java
 public synchronized method1() {
     // ...ThreadA가 실행중    
@@ -246,12 +247,80 @@ public synchronized method2() {
 
 ```
 
+#### 임계영역 블록 정의
 ```java
-void increment() {
-    items++;    
-} 
+void synchronized increment() {
+    items++;
+}
 
-void decrement() {
-    items--;    
+void synchronized decrement() {
+    items--;
 }
 ```
+
+#### 임계 영역으로 간주되는 코드의 블록을 정의하고 액세스 제한
+```java
+public class ClassWithCriticalSections {
+    Object lockingObject = new Object();
+    
+    public void method1() {
+        synchronized (lockingObject) {
+            /*
+             * 
+             * 임계 영역
+             * 
+             * 
+             * */
+        }
+    }
+  
+}
+```
+
+#### 임계영역 블록으로 정의
+
+```java
+void increment() {
+  synchronized(this) {
+      items++;
+  }
+}
+
+void decrement() {
+  synchronized(this) {
+      items--;
+  }
+}
+```
+
+```java
+public class ClassWithCriticalSections {
+  Object lockingObject1 = new Object();
+  Object lockingObject2 = new Object();
+
+  public void method1() {
+//      조건문으로 임계영역을 분기하거나 등등.. 전체를 임계영역으로 지정할 필요가 없음
+    synchronized (lockingObject1) {
+
+    }
+  }
+  public void method2() {
+    synchronized (lockingObject2) {
+        
+    }
+  }
+  
+}
+```
+
+### Synchronized Lock
+- Synchronized block은 재진입 가능
+- 스레드 스스로 임계영역으로 들어가는 것을 막을 수 없음
+
+### Summary
+- 병행성(= 동시성) 문제의 공식적 정의
+- 임계영역을 선언함으로써, 아토믹하게 실행할 필요가 있는 코드를 식별할 수 있음. 
+- 임계영역을 보호하는 Synchronized 키워드의 두 가지 사용법 
+  - 메소드에 선언
+  - 명시적 객체를 사용하여 임계영역 블록을 정의 flexible and granular but verbose
+

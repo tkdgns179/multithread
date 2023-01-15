@@ -1,4 +1,4 @@
-package com.example8_resource_sharing;
+package com.example9_concurrency;
 
 public class Main_Locking {
 
@@ -48,17 +48,24 @@ public class Main_Locking {
     }
     private static class InventoryCounter {
         private int items = 0;
+        Object lock = new Object();
 
         public synchronized void increment() {
-            items++;
+            synchronized (this.lock) {
+                items++;
+            }
         }
 
         public synchronized void decrement() {
-            items--;
+            synchronized (this.lock) {
+                items--;
+            }
         }
 
         public synchronized int getItems() {
-            return items;
+            synchronized (this.lock) {
+                return items;
+            }
         }
     }
 
