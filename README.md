@@ -315,7 +315,7 @@ public class ClassWithCriticalSections {
 
 ### 언제 동기화 해야하나?
 
-![동기화사진]
+![동기화사진](./resources/동기화%20사진.png)
 - 동시 실행이 되지 않을 뿐더러, 문맥 교환비용 메모리 비용까지 오버헤드가 큼
 
 ### 아토믹 연산
@@ -414,6 +414,7 @@ public class SharedClass {
     }
   }
 ```
+![데이터경쟁](resources/데이터%20경쟁.png)
 
 ### Data Race - Problem
 - 컴파일러와 CPU는 성능최적화를 위해 명령어를 순서와 맞지않게 실행하기도 함
@@ -445,7 +446,6 @@ public void increment2(){
     x++;
 }
 ```
-[비순차적!]
 
 ### Data Race - Solutions
 - 이 메소드들 중 하나의 의미론적 코드 이전의 "이벤트를 세워라(??)"  
