@@ -391,3 +391,92 @@ public class BusinessLoginClass {
 - 스레드의 스케쥴링 타이밍이 부정확한 결과를 초래
 - 핵심 문제는 공유된 자원에서 수행되는 비원자적 연산들임  
   [IncrementingThread vs DecremetingThread](#headin)
+
+### 경쟁 조건 - 솔루션
+- 경쟁조건이 발생하는 임계영역 식별
+- 임계영역을 동기화 블록으로 보호
+
+### Data Race
+
+```java
+public class SharedClass {
+  int x = 0;
+  int y = 0;
+  
+  public void increment() { // ThreadA
+    x++;
+    y++;
+  }
+  
+  public void checkForDateRace() { // ThreadB 
+    if (y > x) {
+      throw new DataRaceException("This should not be possible");
+    }
+  }
+```
+
+### Data Race - Problem
+- 컴파일러와 CPU는 성능최적화를 위해 명령어를 순서와 맞지않게 실행하기도 함
+- 논리를 위반하지 않도록 유지함
+- 이러한 비순차적 명령어처리는 코드의 속도를 향상시키는 유용한 기능임
+  - 컴파일러는 명령어를 더 좋은 방식으로 재배치함  
+    (컴파일러 엔지니어들은 입력 코드를 가져와서 이를 재정렬하여 CPU의 분기 예측 능력과 
+  벡터화? 능력을 향상시키고 캐시라인을 프리패치해서 미리 사용할 수 있도록하고 다양한 최적화 작업을 함 p.s.  뭔말인지 모르겠음)
+- CPU는 더 향상된 하드웨어 유닛이용을 위해(ex 일부 명령이 사용할 수 없는 하드웨어를 필요로 할 때) 명령어를 재배열함
+```java
+public void someFunction() {
+    x = 1;
+    y = x + 2;
+    z = y + 10; // 각 코드가 이전 값에 의존하기 때문에 비순차적으로 실행되지않음
+}
+```
+
+```java
+public void increment1() {
+  x++;
+  y++;
+}
+
+// CPU나 컴파일러 관점에서 해당 메서드의 논리가 동일하므로 두 메소드가 같다고 판단
+// 다른 코어에서 실행되는 스레드를 인지하지 못하여 동일 변수를 읽고 특정 처리 순서에 의존(??)
+// x++를 먼저하거나 y++를 먼저하거나 할 경우에 y > x, x < y의 논리적 오류가 생길 수 있다는 뜻?
+public void increment2(){
+    y++;
+    x++;
+}
+```
+[비순차적!]
+
+### Data Race - Solutions
+- 이 메소드들 중 하나의 의미론적 코드 이전의 "이벤트를 세워라(??)"  
+  (Establish a Happens - Before semantics by one of these methods)
+  - 공유된 자원을 수정하는 메소드를 동기화하라
+  - 공유된 자원을 volatile 키워드로 선언하라
+
+```java
+volatile int sharedVar;
+public void method() {
+    ... // All instructions will be executed before
+    read/write(sharedVar);
+    ... // All instructions will be executed after
+}
+```
+
+### Summary
+- 멀티스레드 어플리케이션 두 가지 문제점
+  - Race Conditions
+  - Data Races
+- 둘 다 수반
+  - 멀티 스레드
+  - 최소 하나가 공유자원 수정
+- 두 문제가 예상치 못하거나 올바르지 않은 결과를 초래할 것이라는 문제점
+- Synchronized - Race Conditions & Data Race 문제를 해결할 수 있지만 성능상 문제가 있음
+- Volatile - Synchronized와 의미와 결과가 다르므로 유의해서 사용
+  - Race Condition 문제해결 read/write from/to long and double
+  - 모든 데이터 경쟁문제 해결 순서를 보장함으로써(-> CPU & 컴파일러는 연산순서가 바뀌어도 논리적으로 같다면  
+  속도 향상을 위해 명령어순서를 바꿔서 처리할 수 있음)
+
+### Rule of Thumb
+- 모든 공유된 변수(최소 하나의 스레드로 부터 수정된)들은
+  - 동기화 블록(또는 락의 어떤 타입)에 의해 보호되거나
+  - Volatile로 보호되어야함
