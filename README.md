@@ -206,7 +206,7 @@ int sum(int a, int b) {
 2. 현재의 값에 1을 더하고
 3. 그 결과를 items 변수에 저장함
 
-### <a href="head1">Items++ and items-- concurrently (동시성문제)</a>
+### Items++ and items-- concurrently (동시성문제)<a name="headin"></a>
 ![동시성문제](./resources/동시성%20문제.png)
 
 ### Summary
@@ -390,4 +390,4 @@ public class BusinessLoginClass {
 - 최소 하나의 스레드가 자원을 수정
 - 스레드의 스케쥴링 타이밍이 부정확한 결과를 초래
 - 핵심 문제는 공유된 자원에서 수행되는 비원자적 연산들임  
-  [IncrementingThread vs DecremetingThread](#head1)
+  [IncrementingThread vs DecremetingThread](#headin)
