@@ -308,8 +308,79 @@ public class ClassWithCriticalSections {
 
 ### Summary
 - 병행성(= 동시성) 문제의 공식적 정의
-- 임계영역을 선언함으로써, 아토믹하게 실행할 필요가 있는 코드를 식별할 수 있음. 
+- 임계영역을 선언함으로써, 원자적으로 실행할 필요가 있는 코드를 식별할 수 있음. 
 - 임계영역을 보호하는 Synchronized 키워드의 두 가지 사용법 
   - 메소드에 선언
   - 명시적 객체를 사용하여 임계영역 블록을 정의 flexible and granular but verbose
 
+### 언제 동기화 해야하나?
+
+![동기화사진]
+- 동시 실행이 되지 않을 뿐더러, 문맥 교환비용 메모리 비용까지 오버헤드가 큼
+
+### 아토믹 연산
+- 어느 연산이 원자적인가?
+- 불행히도 모든 연산은 원자적이지 않음
+- 모든 참조 할당은 원자적임
+- 우리는 참조를 오브젝트로 부터 원자적으로 get & set  할 수 있음
+```java
+public int[] getAges() {
+  return this.ages;
+}
+
+public void setName(String name) {
+    this.name = name;    
+}
+
+public void setPerson(Person person) {
+    this.person = person;    
+}
+```
+### 아토믹 연산 - Primitive Types
+- 모든 원시타입 할당은 안전함 <span style="color: red">**long과 double을 제외하고**<span>
+  - int, short, byte, float, char, boolean
+- long과 double은 왜?
+  - ```
+    long x = 5;
+    long y = 10;
+    
+    x = y; // 길이가 64비트라서 Java가 보장해주지 않음 32비트 32비트 2번의 연산
+    
+    volatile double x = 1.0
+    volatile double y = 9.0
+    
+    x = y // 아토믹 연산
+    ```
+    
+### 아토믹 연산
+- 자바의 아토믹 패키지가 있음
+- 원자적 연산이 가능하고 락이 걸리지 않은 상태의 더 고급인 다른 클래스도 다수 지원함
+- 비원자적 연산 -> 원자적 연산
+ 
+### 메트릭 유즈케이스
+```java
+public class BusinessLoginClass {
+    
+    public void businessLogic() {
+
+      long satrt = System.currentTimeMillis();
+      // important operation
+      long end = System.currentTimeMillis();
+      
+      long duration = end - start;
+      f
+      captureSample(duration);
+    }
+  
+  
+    
+}
+```
+
+### Summary
+- 아토믹 연산
+  - 원시타입 할당(double, long 타입 제외)
+  - 포인터 할당
+  - volatile keyword double, long
+- 메트릭 캡쳐 유즈케이스
+- 원자적 연산에 대한 지식은 고성능 정확한 값의 핵심
