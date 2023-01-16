@@ -480,3 +480,72 @@ public void method() {
 - 모든 공유된 변수(최소 하나의 스레드로 부터 수정된)들은
   - 동기화 블록(또는 락의 어떤 타입)에 의해 보호되거나
   - Volatile로 보호되어야함
+
+  
+### 락킹기법과 데드락
+
+
+```java
+// Coarse-Grained Locking
+public class SharedClass {
+  private DatabaseConnectioon dbConnection;
+  private List<Task> tasksQueue;
+
+  public synchronized Item getItemFromDb() {
+
+  }
+
+  public synchronized void addTaskToQueue() {
+
+  }
+  // 하나의 스레드밖에 접근불가하여 멀티스레드 장점을 얻을 수 없음
+}
+```
+
+```java
+// Fine-Grained Locking 
+// 개별적으로 락킹하여 Coarse보다 이점이 많음
+public class SharedClass {
+  private DatabaseConnectioon dbConnection;
+  private List<Task> tasksQueue;
+
+  public Item getItemFromDb() {
+    synchronized (dbConnection) {
+        
+    }
+  }
+
+  public void addTaskToQueue() {
+    synchronized (tasksQueue) {
+        
+    }
+  }
+}
+```
+
+### Conditions for DeadLock
+
+- Mutual Exclusion (상호 배제) - 오직 하나의 스레드가 자원에 대한 배타적 접근을 가짐
+- Hold and Wait (점유 대기) - 최소 하나의 스레드가 한 자원을 점유하고 또 다른 자원을 대기함
+- Non-preemptive allocation(비선점 할당) - 반드시 스레드가 자원 사용을 끝내고나서야 해당  자원이 해제됨
+- Circular wait (순환 대기) - 최소 두 개의 스레드가 각자 한 자원을 점유하고 또 다른 자원을 대기하는  
+  체인이 형성될 때
+
+### Solution
+1. 순환 대기를 피해라 - 동일한 순서로 공유 리소스를 잠그고 모든 코드에 해당 순서를 유지(가장 최선의 방법)  
+  -> 적은 수의 락을 처리하기 쉬운 방법
+- 그러나 다른 위치에 많은 락이 존재한다면 해결하기 쉽지 않음
+
+2. 데드락 감지 - Watchdog
+- 로우레벨에서 주기적으로 특정 레지스터의 상태를 체크 해당 레지스터는  
+  매 스레드, 매 명령마다 업데이트되어야 함, 업데이트 감지 못하면 스레드가 응답하지 않는 것으로 판단 재가동함
+- 스레드 인터럽트 (동기화 블록과 사용 불가능)
+- tryLock 연산 (동기화 블록과 사용 불가능)
+
+### Summary
+- Locking strategies
+  - Coarse-grained locking
+  - Fine-grained locking
+- Deadlock
+  - 순환 대기 점유 피함으로써 해결
+  - 자원을 동일한 순서로 잠궈라 (어디서든)
